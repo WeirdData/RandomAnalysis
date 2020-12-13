@@ -191,44 +191,46 @@ def plot_field_decision():
     plt.show()
 
 
-def plot_day():
+def plot_ground():
     p = Palette()
     data = get_data()
-    winners = [x[0] for x in data]
-    data = [x[4][1] for x in data]
-    win = Counter(winners)
-    cities = Counter()
-    for i in range(len(data)):
-        if winners[i] == data[i]:
-            cities.update({data[i]})
-        elif winners[i] == "Rajasthan" and data[i] == "Jaipur":
-            cities.update({winners[i]})
-        elif winners[i] == "Gujarat" and data[i] == "Rajkot":
-            cities.update({winners[i]})
-        elif winners[i] == "Punjab" and data[i] == "Chandigarh":
-            cities.update({winners[i]})
+    winner = Counter()
+    gr = Counter()
+    grounds = {"Jaipur": "Rajasthan",
+               "Rajkot": "Gujarat",
+               "Chandigarh": "Punjab"}
+    for d in data:
+        if d[0] == d[4][1]:
+            gr.update({d[0]})
+            winner.update({d[0]})
+        if d[1] == d[4][1]:
+            gr.update({d[1]})
+        if d[4][1] in grounds.keys():
+            gr.update({grounds[d[4][1]]})
+            if d[0] == grounds[d[4][1]]:
+                winner.update({d[0]})
 
     x_values, y_values = [], []
-    for m in win:
-        plt.scatter(cities[m], win[m], color=p.aqua())
+    for m in winner:
+        plt.scatter(gr[m], winner[m], color=p.aqua())
         ha = "left"
         x_offset = 1
         va = "center"
-        if m in ["Punjab"]:
+        if m in ["Punjab", "Mumbai"]:
             ha = "right"
             va = "center"
             x_offset = -1
-        plt.text(cities[m] + x_offset, win[m], m, ha=ha, va=va)
-        x_values.append(cities[m])
-        y_values.append(win[m])
+        plt.text(gr[m] + x_offset, winner[m], m, ha=ha, va=va)
+        x_values.append(gr[m])
+        y_values.append(winner[m])
 
-    plt.xlim(0, 70)
-    plt.ylim(0, 130)
+    plt.xlim(30, 90)
+    plt.ylim(20, 60)
     plt.gca().set_facecolor(p.gray(shade=10))
     plt.grid(which="both", ls="--", alpha=0.5)
-    plt.xlabel("number of time team played in home ground")
-    plt.ylabel("number of wins")
-    draw_correlation(x_values, y_values, 70)
+    plt.xlabel("number of time team played on home ground")
+    plt.ylabel("number of wins on home ground")
+    draw_correlation(x_values, y_values, 90)
     plt.tight_layout()
     plt.savefig("plot.png", dpi=150)
     plt.show()
@@ -242,6 +244,9 @@ def plot_pca():
     bat = Counter()
     field = Counter()
     ground = Counter()
+    grounds = {"Jaipur": "Rajasthan",
+               "Rajkot": "Gujarat",
+               "Chandigarh": "Punjab"}
     for d in data:
         win.update({d[0]})
         if d[0] == d[2]:
@@ -253,12 +258,9 @@ def plot_pca():
 
         if d[0] == d[4][1]:
             ground.update({d[0]})
-        elif d[0] == "Rajasthan" and d[4][1] == "Jaipur":
-            ground.update({d[0]})
-        elif d[0] == "Gujarat" and d[4][1] == "Rajkot":
-            ground.update({d[0]})
-        elif d[0] == "Punjab" and d[4][1] == "Chandigarah":
-            ground.update({d[0]})
+        if d[4][1] in grounds.keys():
+            if d[0] == grounds[d[4][1]]:
+                ground.update({grounds[d[4][1]]})
 
     values = defaultdict(list)
     labels = []
@@ -329,5 +331,6 @@ def run():
     # plot_match_played()
     # plot_bat_decision()
     # plot_field_decision()
-    # plot_day()
-    plot_toss_wins_normalized()
+    # plot_ground()
+    # plot_toss_wins_normalized()
+    plot_pca()
