@@ -2,14 +2,16 @@
 #  Author: Rohit Suratekar
 #  This script is part of random data-analysis done in 2020.
 #
-#  Data Source: https://www.kaggle.com/patrickb1912/ipl-complete-dataset-20082020
+#  Data Source:
+#  https://www.kaggle.com/patrickb1912/ipl-complete-dataset-20082020
 
 import csv
 from collections import defaultdict, Counter
-
+from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 from SecretColors import Palette
 from scipy.stats import linregress
+import numpy as np
 
 WINNER_TEAM = 10
 TEAM1 = 6
@@ -39,12 +41,14 @@ def get_data():
     with open("data/ipl.csv") as f:
         next(f)  # Skip header
         for row in csv.reader(f):
+            # if row[WINNER_TEAM] in ["Pune", "Gujarat", "Kochi"]:
+            #     continue
             if row[WINNER_TEAM] == "NA":
                 continue
             other = row[TEAM1] if row[TEAM1] != row[WINNER_TEAM] else row[
                 TEAM2]
             data.append(
-                (row[WINNER_TEAM], other, row[TOSS_WIN], row[TOSS_DES]))
+                (row[WINNER_TEAM], other, row[TOSS_WIN], row[TOSS_DES], row))
     return data
 
 
@@ -89,6 +93,8 @@ def plot_match_played():
     plt.xlabel("number of matches played")
     plt.ylabel("number of wins")
     draw_correlation(x_values, y_values, 250)
+    plt.tight_layout()
+    plt.savefig("plot.png", dpi=150)
     plt.show()
 
 
@@ -115,9 +121,11 @@ def plot_toss_wins():
     plt.ylim(0, 130)
     plt.gca().set_facecolor(p.gray(shade=10))
     plt.grid(which="both", ls="--", alpha=0.5)
-    plt.xlabel("number of toss won")
+    plt.xlabel("number of times team has won the toss")
     plt.ylabel("number of wins")
     draw_correlation(x_values, y_values, 130)
+    plt.tight_layout()
+    plt.savefig("plot.png", dpi=150)
     plt.show()
 
 
@@ -144,9 +152,11 @@ def plot_bat_decision():
     plt.ylim(0, 130)
     plt.gca().set_facecolor(p.gray(shade=10))
     plt.grid(which="both", ls="--", alpha=0.5)
-    plt.xlabel("number of time team decided to bat after winning toss")
+    plt.xlabel("number of time team decided to bat after winning the toss")
     plt.ylabel("number of wins")
     draw_correlation(x_values, y_values, 60)
+    plt.tight_layout()
+    plt.savefig("plot.png", dpi=150)
     plt.show()
 
 
@@ -173,14 +183,115 @@ def plot_field_decision():
     plt.ylim(0, 130)
     plt.gca().set_facecolor(p.gray(shade=10))
     plt.grid(which="both", ls="--", alpha=0.5)
-    plt.xlabel("number of time team decided to field after winning toss")
+    plt.xlabel("number of time team decided to field after winning the toss")
     plt.ylabel("number of wins")
     draw_correlation(x_values, y_values, 80)
+    plt.tight_layout()
+    plt.savefig("plot.png", dpi=150)
+    plt.show()
+
+
+def plot_day():
+    p = Palette()
+    data = get_data()
+    winners = [x[0] for x in data]
+    data = [x[4][1] for x in data]
+    win = Counter(winners)
+    cities = Counter()
+    for i in range(len(data)):
+        if winners[i] == data[i]:
+            cities.update({data[i]})
+        elif winners[i] == "Rajasthan" and data[i] == "Jaipur":
+            cities.update({winners[i]})
+        elif winners[i] == "Gujarat" and data[i] == "Rajkot":
+            cities.update({winners[i]})
+        elif winners[i] == "Punjab" and data[i] == "Chandigarh":
+            cities.update({winners[i]})
+
+    x_values, y_values = [], []
+    for m in win:
+        plt.scatter(cities[m], win[m], color=p.aqua())
+        ha = "left"
+        x_offset = 1
+        va = "center"
+        if m in ["Punjab"]:
+            ha = "right"
+            va = "center"
+            x_offset = -1
+        plt.text(cities[m] + x_offset, win[m], m, ha=ha, va=va)
+        x_values.append(cities[m])
+        y_values.append(win[m])
+
+    plt.xlim(0, 70)
+    plt.ylim(0, 130)
+    plt.gca().set_facecolor(p.gray(shade=10))
+    plt.grid(which="both", ls="--", alpha=0.5)
+    plt.xlabel("number of time team played in home ground")
+    plt.ylabel("number of wins")
+    draw_correlation(x_values, y_values, 70)
+    plt.tight_layout()
+    plt.savefig("plot.png", dpi=150)
+    plt.show()
+
+
+def plot_pca():
+    p = Palette()
+    data = get_data()
+    win = Counter()
+    toss = Counter()
+    bat = Counter()
+    field = Counter()
+    ground = Counter()
+    for d in data:
+        win.update({d[0]})
+        if d[0] == d[2]:
+            toss.update({d[0]})
+        if d[3] == "bat":
+            bat.update({d[0]})
+        else:
+            field.update({d[0]})
+
+        if d[0] == d[4][1]:
+            ground.update({d[0]})
+        elif d[0] == "Rajasthan" and d[4][1] == "Jaipur":
+            ground.update({d[0]})
+        elif d[0] == "Gujarat" and d[4][1] == "Rajkot":
+            ground.update({d[0]})
+        elif d[0] == "Punjab" and d[4][1] == "Chandigarah":
+            ground.update({d[0]})
+
+    values = defaultdict(list)
+    labels = []
+    for m in win:
+        labels.append(m)
+        values[m].append(win[m])
+        values[m].append(toss[m])
+        values[m].append(bat[m])
+        values[m].append(field[m])
+        values[m].append(ground[m])
+
+    values = np.array(list(values.values())).transpose()
+    pca = PCA()
+    pca.fit_transform(values)
+    var = pca.components_
+    plt.scatter(var[0, :], var[1, :], color=p.red(shade=40))
+    for i, m in enumerate(labels):
+        plt.annotate(m, xy=(var[0, i] + 0.005, var[1, i]), )
+    percentages = [round(x, 2) for x in pca.explained_variance_ratio_ * 100]
+    plt.xlabel(f"PC1: {percentages[0]} %")
+    plt.ylabel(f"PC2: {percentages[1]} %")
+    plt.xlim(0, 0.51)
+    plt.gca().set_facecolor(p.gray(shade=10))
+    # plt.grid(which="both", ls="--", color=p.black(), alpha=0.5)
+    plt.tight_layout()
+    plt.savefig("plot.png", dpi=150)
     plt.show()
 
 
 def run():
     # plot_toss_wins()
     # plot_match_played()
-    plot_bat_decision()
+    # plot_bat_decision()
     # plot_field_decision()
+    # plot_day()
+    plot_pca()
