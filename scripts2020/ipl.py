@@ -288,10 +288,46 @@ def plot_pca():
     plt.show()
 
 
+def plot_toss_wins_normalized():
+    p = Palette()
+    data = get_data()
+    toss_won = [x[2] for x in data]
+    toss = Counter(toss_won)
+    win = Counter([x[0] for x in data])
+    matches = [x[0] for x in data]
+    matches.extend([x[1] for x in data])
+    matches = Counter(matches)
+    x_values, y_values = [], []
+    for m in win:
+        plt.scatter(toss[m] / matches[m], win[m] / matches[m], color=p.red())
+        ha = "left"
+        x_offset = 0.002
+        if m in ["Punjab", "Mumbai", "Kolkata", "Gujarat"]:
+            ha = "right"
+            x_offset = -0.002
+
+        plt.text(toss[m] / matches[m] + x_offset, win[m] / matches[m], m,
+                 ha=ha)
+        x_values.append(toss[m] / matches[m])
+        y_values.append(win[m] / matches[m])
+
+    plt.xlim(0.4, 0.65)
+    plt.ylim(0.3, 0.62)
+    plt.gca().set_facecolor(p.gray(shade=10))
+    plt.grid(which="both", ls="--", alpha=0.5)
+    plt.xlabel("number of times team has won the toss (normalized)")
+    plt.ylabel("number of wins (normalized)")
+    plt.title("after data is normalized to number of matches played")
+    draw_correlation(x_values, y_values, 0.65)
+    plt.tight_layout()
+    plt.savefig("plot.png", dpi=150)
+    plt.show()
+
+
 def run():
     # plot_toss_wins()
     # plot_match_played()
     # plot_bat_decision()
     # plot_field_decision()
     # plot_day()
-    plot_pca()
+    plot_toss_wins_normalized()
