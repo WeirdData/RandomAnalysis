@@ -3,6 +3,6 @@
 #  This script is part of random data-analysis done in 2020.
 #
 
-from scripts2020.ipl import run
+from scripts2021.health import run
 
 run()

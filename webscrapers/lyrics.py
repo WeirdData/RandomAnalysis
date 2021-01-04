@@ -9,11 +9,12 @@
 #  website do not mention anything about the web-scrapping.
 
 
-from bs4 import BeautifulSoup
 import pathlib
-import requests
-import time
 import random
+import time
+
+import requests
+from bs4 import BeautifulSoup
 
 BASE_URL = "https://www.bollywoodlyrics.com"
 FOLDER = f"data/downloaded"
@@ -21,7 +22,7 @@ FOLDER = f"data/downloaded"
 
 def get_page(url) -> BeautifulSoup:
     print(f"fetching {url}")
-    # time.sleep(random.randint(2, 5))
+    time.sleep(random.randint(0, 3))
     page = requests.get(url)
     if page.status_code != 200:
         print(f"Something went wrong. Skipping URL: {url}")
