@@ -7,7 +7,12 @@
 #  /ugc-to-assess-quality-of-phds-awarded-in-the-last-decade/articleshow/69637531.cms
 #
 #  data for PhD enrolment
-#  https://www.ugc.ac.in/stats.aspx
+#  https://www.ugc.ac.in/stats.aspx,
+#  https://www.ugc.ac.in/page/Other-Publications.aspx
+#  file names :
+#  Higher Education in India at a glance February,2012
+#  Higher Education in India at a glance January, 2018
+#
 #
 #  data for PhD Award in 2016
 #  https://aishe.nic.in/aishe/viewDocument.action?documentId=245
