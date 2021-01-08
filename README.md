@@ -1,6 +1,9 @@
 # RandomAnalysis
+
 All random data analysis scripts
 
 # Analysis Index
-* [Medical Doctors](../main/scripts2021/health.py)[2021]
-* [IPL Analysis](../main/scripts2020/ipl.py) [2020]
+
+* [PhD Stat](../main/scripts2021/phd_stat.py)[Jan 2021]
+* [Medical Doctors](../main/scripts2021/health.py)[Jan 2021]
+* [IPL Analysis](../main/scripts2020/ipl.py) [Dec 2020]
