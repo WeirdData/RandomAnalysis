@@ -22,5 +22,14 @@ def medical_doctors():
     df.to_csv("data.csv", index=False)
 
 
+def basic_water():
+    df = pd.read_csv("data/health/basicDrinkingWaterServices.csv")
+    df = df.sort_values(by="Period")
+    df = df.drop_duplicates(subset=["Location"], keep="last")
+    df = df[df["Period"] == 2017]
+    df = df[["Location", "First Tooltip"]].sort_values(by="Location")
+    df.to_csv("basicDrinkingWater.csv", index=False)
+
+
 def run():
-    medical_doctors()
+    basic_water()
